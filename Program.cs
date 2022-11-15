@@ -1,9 +1,15 @@
+using static System.Formats.Asn1.AsnWriter;
+
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-SalaDeAula Sala = new SalaDeAula(5);
+string S = "A1";
+int C = 5;
 
-app.MapGet("/", () => Sala.listar());
+SalaDeAula Sala = new SalaDeAula(S,C);
+
+app.MapGet("/", () => "Salas e Alunos");
+app.MapGet("/Listar/", () => Sala.listar());
 app.MapGet("/entrar/{Nome},{Numero}", (string Nome, int Numero) => Sala.entrar(new Aluno(Nome, Numero)));
 app.MapGet("/sair/{Nome}", (string Nome) => Sala.sair(Nome));
 app.Run();
@@ -22,56 +28,60 @@ class Aluno
     public String Nome;
     public int Numero;
     //Constructor
-    public Aluno(String Nome, int Numero)
+    public Aluno(string Nome, int Numero)
     {
         this.Nome = Nome;
         this.Numero = Numero;
     }
 }
-
 class SalaDeAula
 {
     //Lista dinâmica (Não precisa de tamanho)
     List<Aluno> EmSala = new List<Aluno>();
     int capacidade;
-
+    string SalaNome;
     //Constructor
-    public SalaDeAula(int capacidade)
+    public SalaDeAula(string SalaNome, int capacidade)
     {
         this.capacidade = capacidade;
+        this.SalaNome = SalaNome;
     }
 
     //Lista todos os alunos que se encontram em sala
     public String listar()
     {
-        String Alunos = "Em Sala:\n";
+
+        String Alunos = "Alunos em sala:\n";
 
         foreach (Aluno alu in EmSala)
         {
-            Alunos += alu.Nome +" com o Número " + alu.Numero + "\n";
+            Alunos += alu.Nome + " com o Número " + alu.Numero + "\n";
         }
 
         return Alunos;
 
     }
 
+
     //Entrar um aluno na sala
     public String entrar(Aluno a)
     {
-        //Ver se existe lugar
+        //Ver se existe lugar na sala selecionada
         if (EmSala.Count < capacidade)
         {
             EmSala.Add(a);
-            return $"O aluno com o nome {a.Nome} entrou na sala.";
+            return $"O aluno com o nome {a.Nome} entrou na sala {SalaNome}.";
         }
         else
         {
             return "Sala completa";
         }
+
+
     }
 
     //Sair um aluno da sala
-    public String sair(String Nome)
+    public String sair(string Nome)
     {
         Aluno? toRemove = null;
 
@@ -94,6 +104,7 @@ class SalaDeAula
             return "O aluno não se encontra na sala.";
         }
     }
-
-
 }
+
+
+
